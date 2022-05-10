@@ -1,0 +1,32 @@
+name: "Get Version"
+
+on:
+  workflow_call:
+    inputs:
+      fallback:
+        description: "Value to use if no tag is set"
+        default: ""
+        type: string
+        required: false
+
+    outputs:
+      version:
+        description: "Version of the code"
+        value: ${{ jobs.get_version.outputs.version }}
+
+jobs:
+  get_version:
+    name: Get Version
+    runs-on: [ubuntu-latest]
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Only set for tags, not set for `push to branch`
+      - name: Get Version from Tag
+        id: get_version
+        run: |
+          [[ ! "${{ github.event.ref }}" =~ refs/tags ]] && echo "::set-output name=version::${{ inputs.fallback }}" && exit
+          echo "::set-output name=version::${{ github.ref_name }}"
