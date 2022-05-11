@@ -1,0 +1,65 @@
+name: Deploy Helm Template
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment (sb, dev, test, etc..)"
+        # default: 'sb'
+        type: string
+        required: true
+      cluster_name:
+        description: "GKE Cluster Name"
+        default: "cluster-01"
+        type: string
+        required: false
+      region:
+        description: "Region"
+        default: "northamerica-northeast1"
+        type: string
+        required: false
+      project_id:
+        description: "GCP Project ID"
+        default: "atbv-sb-app-01"
+        type: string
+        required: false
+      namespace:
+        description: "GKE Namespace"
+        default: ""
+        type: string
+        required: true
+      helm_path:
+        description: "Helmchart Path (relative to project root)"
+        default: "./deploy/k8s/helmchart"
+        type: string
+        required: false
+      tag:
+        description: "Version Tag for Docker Image"
+        default: ""
+        type: string
+        required: false
+
+jobs:
+  deploy-platform:
+    name: Deploy Platform API
+    runs-on: [self-hosted, software, sandbox]
+    if: ${{ github.repository_owner == 'atb-ventures' }}
+    env:
+      DOCKER_IMAGE_NAME: ${{ inputs.image_name }}
+      ENVIRONMENT: ${{ inputs.environment }} # 'sb'
+      PROJECT_ID: ${{ inputs.project_id }} # 'atbv-sb-app-01'
+      HELM_PATH: ${{ inputs.helm_path }} # './deploy/k8s/helmchart'
+      NAMESPACE: ${{ inputs.namespace }}
+      CLUSTER_NAME: ${{ inputs.cluster_name }} # 'cluster-01'
+      REGION: ${{ inputs.region }} # 'northamerica-northeast1'
+      VERSION: ${{ inputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy
+        run: |
+          gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
+          helm template ${{ env.HELM_PATH }} -f ${{ env.HELM_PATH }}/values-common.yaml,${{ env.HELM_PATH }}/values-${{ env.ENVIRONMENT }}.yaml \
+            --set-string=tag=${{ env.VERSION }} \
+            | kubectl apply -n ${{ env.NAMESPACE }} -f-

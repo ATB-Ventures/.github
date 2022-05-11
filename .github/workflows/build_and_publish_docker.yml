@@ -1,0 +1,50 @@
+name: Build & Publish Docker
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: "Docker Image Name"
+        default: ""
+        type: string
+        required: true
+      tag:
+        description: "Version Tag for Docker Image"
+        default: ""
+        type: string
+        required: false
+      relative_folder:
+        description: "Folder (context) the Dockerfile is in (relative to project root)"
+        default: "."
+        type: string
+        required: false
+      dockerfile_name:
+        description: "Name of the Dockerfile"
+        default: "Dockerfile"
+        type: string
+        required: false
+
+jobs:
+  build-and-publish:
+    name: Build and Publish
+    runs-on: [self-hosted, software, sandbox]
+    if: ${{ github.repository_owner == 'atb-ventures' }}
+    env:
+      DOCKER_IMAGE_NAME: ${{ inputs.image_name }}
+      VERSION: ${{ inputs.tag }}
+      FOLDER: ${{ inputs.relative_folder }}
+      DOCKERFILE: ${{ inputs.dockerfile_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          VERSIONED_IMAGE="$([ -z "${{ env.VERSION }}" ] && echo "" || echo "-t $DOCKER_IMAGE_NAME:${{ env.VERSION }}")"
+          cd ${{ env.FOLDER }} && docker build . -t $DOCKER_IMAGE_NAME:latest $VERSIONED_IMAGE -f ${{ env.DOCKERFILE }}
+
+      - name: Publish
+        run: |
+          docker push $DOCKER_IMAGE_NAME:latest
+          VERSIONED_IMAGE="$([ -z "${{ env.VERSION }}" ] && echo "" || echo "$DOCKER_IMAGE_NAME:${{ env.VERSION }}")"
+          [ ! -z "$VERSIONED_IMAGE" ] && docker push $VERSIONED_IMAGE || echo "Only pushed latest.. No new tagged version"
