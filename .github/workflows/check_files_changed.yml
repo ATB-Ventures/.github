@@ -30,3 +30,6 @@ jobs:
         uses: tj-actions/changed-files@v19
         with:
           files: ${{ inputs.files }}
+
+      - name: Echo
+        run: echo "Any Changed ?? ${{ steps.changed-files.outputs.any_changed }}"
