@@ -38,28 +38,37 @@ on:
         default: ""
         type: string
         required: false
+      changed:
+        default: "true"
+        type: "string"
+        required: false
+      additional_args:
+        default: ""
+        type: string
+        required: false
 
 jobs:
-  deploy-platform:
-    name: Deploy Platform API
+  deploy-helm:
+    name: Deploy Helm
     runs-on: [self-hosted, software, sandbox]
     if: ${{ github.repository_owner == 'atb-ventures' }}
     env:
-      DOCKER_IMAGE_NAME: ${{ inputs.image_name }}
       ENVIRONMENT: ${{ inputs.environment }} # 'sb'
       PROJECT_ID: ${{ inputs.project_id }} # 'atbv-sb-app-01'
       HELM_PATH: ${{ inputs.helm_path }} # './deploy/k8s/helmchart'
       NAMESPACE: ${{ inputs.namespace }}
       CLUSTER_NAME: ${{ inputs.cluster_name }} # 'cluster-01'
       REGION: ${{ inputs.region }} # 'northamerica-northeast1'
+      ADDITIONAL_ARGS: ${{ inputs.additional_args }}
       VERSION: ${{ inputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Deploy
+        if: ${{ inputs.changed == 'true' }}
         run: |
           gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
           helm template ${{ env.HELM_PATH }} -f ${{ env.HELM_PATH }}/values-common.yaml,${{ env.HELM_PATH }}/values-${{ env.ENVIRONMENT }}.yaml \
-            --set-string=tag=${{ env.VERSION }} \
+            --set-string=tag=${{ env.VERSION }} ${{ env.ADDITIONAL_ARGS }} \
             | kubectl apply -n ${{ env.NAMESPACE }} -f-

@@ -23,6 +23,14 @@ on:
         default: "Dockerfile"
         type: string
         required: false
+      changed:
+        default: "true"
+        type: string
+        required: false
+      additional_build_args:
+        default: ""
+        type: string
+        required: false
 
 jobs:
   build-and-publish:
@@ -34,16 +42,20 @@ jobs:
       VERSION: ${{ inputs.tag }}
       FOLDER: ${{ inputs.relative_folder }}
       DOCKERFILE: ${{ inputs.dockerfile_name }}
+      ADDITIONAL_BUILD_ARGS: ${{ inputs.additional_build_args }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Build
+        if: ${{ inputs.changed == 'true' }}
         run: |
           VERSIONED_IMAGE="$([ -z "${{ env.VERSION }}" ] && echo "" || echo "-t $DOCKER_IMAGE_NAME:${{ env.VERSION }}")"
-          cd ${{ env.FOLDER }} && docker build . -t $DOCKER_IMAGE_NAME:latest $VERSIONED_IMAGE -f ${{ env.DOCKERFILE }}
+          cd ${{ env.FOLDER }} && docker build . -t $DOCKER_IMAGE_NAME:latest $VERSIONED_IMAGE $ADDITIONAL_BUILD_ARGS \
+            -f ${{ env.DOCKERFILE }}
 
       - name: Publish
+        if: ${{ inputs.changed == 'true' }}
         run: |
           docker push $DOCKER_IMAGE_NAME:latest
           VERSIONED_IMAGE="$([ -z "${{ env.VERSION }}" ] && echo "" || echo "$DOCKER_IMAGE_NAME:${{ env.VERSION }}")"
