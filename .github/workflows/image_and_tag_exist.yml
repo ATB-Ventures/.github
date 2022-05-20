@@ -1,0 +1,25 @@
+name: "Image and Tag Exist"
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Docker image to look for"
+        type: string
+        required: true
+
+      tag:
+        description: "Docker tag to look for"
+        type: string
+        required: true
+
+jobs:
+  image_tag_exists:
+    name: Check Image and Tag Exist
+    runs-on: [self-hosted]
+    env:
+      IMAGE: ${{ inputs.image }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - run: |
+          docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
