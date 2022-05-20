@@ -23,3 +23,6 @@ jobs:
     steps:
       - run: |
           docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
+
+      - run: |
+          echo "Image $IMAGE with tag $TAG exists!"
