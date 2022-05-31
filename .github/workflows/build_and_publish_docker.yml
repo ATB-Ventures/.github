@@ -24,8 +24,9 @@ on:
         type: string
         required: false
       changed:
-        default: "true"
-        type: string
+        description: Have any files changed?
+        default: true
+        type: boolean
         required: false
       additional_build_args:
         default: ""
