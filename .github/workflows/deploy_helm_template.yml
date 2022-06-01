@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy
-        if: ${{ inputs.changed == 'true' }}
+        if: ${{ inputs.changed }}
         run: |
           gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
           helm template ${{ env.HELM_PATH }} -f ${{ env.HELM_PATH }}/values-common.yaml,${{ env.HELM_PATH }}/values-${{ env.ENVIRONMENT }}.yaml \
