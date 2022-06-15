@@ -13,6 +13,12 @@ on:
         type: string
         required: true
 
+      allow_tag_latest:
+        description: "Do you want to let latest be approved?"
+        type: boolean
+        required: false
+        default: false
+
 jobs:
   image_tag_exists:
     name: Check Image and Tag Exist
@@ -20,7 +26,17 @@ jobs:
     env:
       IMAGE: ${{ inputs.image }}
       TAG: ${{ inputs.tag }}
+      ALLOW_LATEST_TAG: ${{ inputs.allow_tag_latest }}
     steps:
+      - name: "Confirm Tag is or isn't LATEST"
+        shell: bash
+        run: |
+          if [ "$TAG" == "latest" ] && [ "$ALLOW_LATEST_TAG" = false ] 
+          then
+            >&2 echo "Latest is not allowed"
+            exit 1;
+          fi
+
       - run: |
           docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
 

@@ -52,7 +52,7 @@ jobs:
         if: ${{ inputs.changed }}
         run: |
           VERSIONED_IMAGE="$([ -z "${{ env.VERSION }}" ] && echo "" || echo "-t $DOCKER_IMAGE_NAME:${{ env.VERSION }}")"
-          cd ${{ env.FOLDER }} && docker build . -t $DOCKER_IMAGE_NAME:latest $VERSIONED_IMAGE $ADDITIONAL_BUILD_ARGS \
+          cd ${{ env.FOLDER }} && docker build . --pull -t $DOCKER_IMAGE_NAME:latest $VERSIONED_IMAGE $ADDITIONAL_BUILD_ARGS \
             -f ${{ env.DOCKERFILE }}
 
       - name: Publish
