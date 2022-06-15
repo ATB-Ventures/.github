@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: "Confirm Tag is/isn't LATEST"
         run: |
-          [ "$TAG" == "latest" ] && [ "$ALLOW_LATEST_TAG" = "false" ] && exit 1;
+          [ "$TAG" == "latest" ] && [ "$ALLOW_LATEST_TAG" == "false" ] && exit 1;
 
       - run: |
           docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
