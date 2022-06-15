@@ -28,8 +28,9 @@ jobs:
       TAG: ${{ inputs.tag }}
       ALLOW_LATEST_TAG: ${{ inputs.allow_tag_latest }}
     steps:
-      - run: |
-          [ "$TAG" == "latest" ] && [ "$ALLOW_LATEST_TAG" = false ] && echo >&2 "latest is not an acceptable tag"; exit 1;
+      - name: "Confirm Tag is/isn't LATEST"
+        run: |
+          [ "$TAG" == "latest" ] && [ "$ALLOW_LATEST_TAG" = false ] && exit 1;
 
       - run: |
           docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
