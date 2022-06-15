@@ -15,7 +15,7 @@ on:
 jobs:
   check_files_changed:
     name: Check Files Changed
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'atb-ventures' }}
     outputs:
       any_changed: ${{ steps.changed-files.outputs.any_changed }}
