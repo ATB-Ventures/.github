@@ -29,6 +29,7 @@ jobs:
       TAG: ${{ inputs.tag }}
     steps:
       - id: check_tag
+        continue-on-error: true
         run: |
           docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
 
