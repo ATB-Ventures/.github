@@ -1,0 +1,43 @@
+name: "Check Image and Tag"
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Docker image to look for"
+        type: string
+        required: true
+
+      tag:
+        description: "Docker tag to look for"
+        type: string
+        required: true
+
+    outputs:
+      exists:
+        description: "String of 'true' or 'false'"
+        value: ${{ jobs.check_image_tag.outputs.exists }}
+
+jobs:
+  check_image_tag:
+    name: Check Image and Tag Exist
+    runs-on: [self-hosted]
+    outputs:
+      exists: ${{ steps.set_exists.outputs.exists }}
+    env:
+      IMAGE: ${{ inputs.image }}
+      TAG: ${{ inputs.tag }}
+    steps:
+      - id: check_tag
+        run: |
+          docker manifest inspect $IMAGE:$TAG > /dev/null ; echo $?
+
+      - if: ${{ always() }}
+        id: set_exists
+        run: |
+          if [ "${{ steps.check_tag.outcome }}" == "failure" ]
+          then
+            echo "::set-output name=exists::false"
+          else
+            echo "::set-output name=exists::true"
+          fi
