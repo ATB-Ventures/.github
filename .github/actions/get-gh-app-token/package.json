@@ -1,0 +1,17 @@
+{
+  "name": "get-gh-app-token",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generate-gh-token.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^3.2.6"
+  }
+}

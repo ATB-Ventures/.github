@@ -22,7 +22,7 @@ on:
 jobs:
   image_tag_exists:
     name: Check Image and Tag Exist
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, software]
     env:
       IMAGE: ${{ inputs.image }}
       TAG: ${{ inputs.tag }}
