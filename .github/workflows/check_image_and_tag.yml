@@ -21,7 +21,7 @@ on:
 jobs:
   check_image_tag:
     name: Check Image and Tag Exist
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, software]
     outputs:
       exists: ${{ steps.set_exists.outputs.exists }}
     env:
